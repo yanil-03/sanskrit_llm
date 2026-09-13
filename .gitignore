@@ -6,3 +6,11 @@ eval/tokenizer_report.json
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+
+# Ignore folder contents but preserve the folders
+data/*
+!data/.gitkeep
+
+outputs/*
+!outputs/.gitkeep
