@@ -2,7 +2,7 @@
 
 ## 13.1 What You'll Need
 - A Google account, for Colab — nothing to install locally.
-- (Only if you want to try Llama) A free Hugging Face account with the Llama-3.2 license accepted, plus an HF access token.
+- A free Hugging Face account with the Llama-3.2 license accepted, plus an HF access token (required for the current default model, Llama-3.2-1B-Instruct).
 
 ## 13.2 Colab (the easy way)
 1. Open `sanskrit_llm_pipeline.ipynb` in Google Colab.
@@ -23,7 +23,7 @@ Everything lives in one `CONFIG` dict at the top of the notebook — you edit va
 
 | Setting | Default | When you'd change it |
 |---|---|---|
-| `base_model` | `Qwen/Qwen2.5-1.5B-Instruct` | Swap to `meta-llama/Llama-3.2-1B-Instruct` to compare (needs HF login + accepted license) |
+| `base_model` | `meta-llama/Llama-3.2-1B-Instruct` | Requires HF login + accepted license. Swap to `Qwen/Qwen2.5-1.5B-Instruct` if you don't want to deal with gated-model access (ungated, slightly slower, worse Sanskrit tokenizer ratio) |
 | `max_train_samples` | `500` | Bump this up (or set it to `None`) for a more thorough fine-tune if you have the time |
 | `eval_limit` | `None` | Set it to something small (100-150) to keep inference inside a single Colab session |
 | `max_new_tokens` | `200` | Lower it (80-100) to speed up inference for short verses |
