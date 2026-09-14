@@ -106,13 +106,17 @@ immediately instead of me having to infer it from wall-clock time alone.
 That surfaced the real issue as environment-specific (memory-pressure-driven
 CPU offload interacting with `device_map="auto"`, compounded by the extra
 friction of Llama being a gated repo) rather than anything inherent to the
-model itself. Once resolved, **Llama-3.2-1B-Instruct trains in ~6 minutes
-for 500 samples, versus ~22 minutes for Qwen2.5-1.5B-Instruct** on the same
-config and hardware — a clean reversal. Combined with its better tokenizer
-fragmentation ratio, Llama is now the stronger pick on every axis I
-measured, so it's the default reported here. `Qwen/Qwen2.5-1.5B-Instruct`
-stays wired in as an ungated fallback for anyone who'd rather skip the
-license-acceptance step.
+model itself. Once resolved, **Llama-3.2-1B-Instruct trains in about 17
+minutes for 500 samples on a T4** — confirmed by an actual re-run — a
+dramatic improvement on the ~6-hour figure I originally saw before the
+bottleneck was fixed. (An earlier draft of this report cited an unverified
+"~6 minutes" figure for Llama and "~22 minutes" for Qwen, carried over from
+an early comparison note I hadn't personally reproduced; I'm correcting
+that here to the actual measured time from a real run.) Combined with its
+better tokenizer fragmentation ratio, Llama is now the stronger pick on
+every axis I measured, so it's the default reported here.
+`Qwen/Qwen2.5-1.5B-Instruct` stays wired in as an ungated fallback for
+anyone who'd rather skip the license-acceptance step.
 
 I'm including this reversal rather than quietly rewriting history because I
 think it's a more honest and more useful account of the actual engineering
@@ -180,17 +184,19 @@ originally split this project into five separate scripts
 (`prepare_data.py`, `inspect_tokenizer.py`, `train.py`, `infer.py`,
 `evaluate.py`) glued together by a driver notebook. I've since consolidated
 everything into a single, self-contained notebook
-(`notebooks/sanskrit_llm_pipeline.ipynb`) with one shared `CONFIG` dict at
-the top instead of CLI flags scattered across five files. That's a bit less
-"clean software engineering" in the traditional sense, but it's the right
-call for this specific deliverable: this is a Colab-run, one-off fine-tuning
+(`sanskrit_llm_pipeline.ipynb`) with one shared `CONFIG` dict at the top
+instead of CLI flags scattered across five files. That's a bit less "clean
+software engineering" in the traditional sense, but it's the right call for
+this specific deliverable: this is a Colab-run, one-off fine-tuning
 assignment, not a codebase I need to maintain long-term, and consolidating
 it removed an entire class of cross-script bugs where one script's output
 format didn't quite match what the next one expected to read. It also means
 a reviewer can open one file and run the whole pipeline top to bottom
-without hunting for the right script invocation order. The original
-scripts are kept in the repo for anyone who prefers running things
-piece by piece, but the notebook is the primary, tested path.
+without hunting for the right script invocation order. Once I'd confirmed
+the notebook fully reproduced what the five scripts did, I removed the
+original scripts from the repo entirely rather than keeping two parallel,
+divergence-prone versions of the same pipeline around — the notebook is now
+the only entry point.
 
 ## 5. Hardware Constraints and Optimizations
 
@@ -214,10 +220,14 @@ Target: single T4 (16GB) or L4. Optimizations applied to fit this budget:
 
 **Actual observed training time:** with the environment-specific bottleneck
 from Section 3 resolved, the reported Llama-3.2-1B-Instruct configuration
-(500 training examples, 2 epochs) completes in roughly 6 minutes on a Tesla
-T4 (15.6GB VRAM) — versus ~22 minutes for the same config on
-Qwen2.5-1.5B-Instruct. Peak VRAM usage wasn't explicitly logged during this
-run; a `torch.cuda.max_memory_allocated()` print after training is a small,
+(500 training examples, 2 epochs) completes in about 17 minutes on a Tesla
+T4 (15.6GB VRAM), confirmed by an actual training run (`[64/64 17:25,
+Epoch 2/2]`). I haven't re-run the same config on Qwen2.5-1.5B-Instruct to
+get an equally verified comparison time for it, so I'm not citing a
+specific number for Qwen here — the earlier "~22 minutes" figure was
+unverified and I'd rather leave a gap than restate a number I can't back
+up. Peak VRAM usage wasn't explicitly logged during this run; a
+`torch.cuda.max_memory_allocated()` print after training is a small,
 worthwhile addition for a future run to capture this precisely.
 
 ## 6. Evaluation Methodology
@@ -307,6 +317,15 @@ combined with pure greedy decoding and no repetition penalty) rather than a
 semantic-understanding gap — which is actually good news, since it points
 to a cheap, non-training fix (see Section 9).
 
+**This isn't purely a fine-tuning artifact.** The *untuned base model*
+shows the identical failure mode on the same test set — one `sa2en` example
+degenerates into "the destroyer of the universe" repeated over a dozen
+times, before any fine-tuning has touched the model at all. That's useful
+evidence: it means greedy decoding with no repetition penalty is already
+prone to this on Llama-3.2-1B regardless of what data it's trained on,
+which makes a generation-time fix (rather than more/different training
+data) an even more clearly correct next step.
+
 **On the successful end**, ranking the same way surfaces genuinely strong
 outputs, concentrated in `explain`:
 
@@ -381,10 +400,12 @@ outputs by eye. Full per-task-type top/bottom breakdowns are in
   this by building `score_and_rank()` — a straightforward sentence-level
   chrF++ ranking over every prediction — so the examples in Section 7 are
   selected by a rule, not by my own eye.
-- **Consolidating five scripts into one notebook** (Section 4) removed a
-  recurring class of bugs where one script's output format silently didn't
-  match what the next one expected — worth naming as a challenge I solved
-  by simplifying the architecture rather than adding more code.
+- **Consolidating five scripts into one notebook, then removing the scripts
+  entirely** (Section 4) removed a recurring class of bugs where one
+  script's output format silently didn't match what the next one expected
+  — worth naming as a challenge I solved by simplifying the architecture
+  rather than adding more code, and one I finished by not leaving a second,
+  divergence-prone copy of the pipeline sitting in the repo.
 
 ## 9. What I Would Improve With More Time
 

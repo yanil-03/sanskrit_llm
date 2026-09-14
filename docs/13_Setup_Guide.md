@@ -16,7 +16,7 @@
 pip install transformers accelerate peft trl bitsandbytes datasets sacrebleu pandas
 ```
 
-Then just run the notebook's cells in order through Jupyter, or pull out the equivalent script sections.
+Then just run the notebook's cells in order through Jupyter — there's no separate script version anymore, the notebook is the whole pipeline.
 
 ## 13.4 Config Options Worth Knowing
 Everything lives in one `CONFIG` dict at the top of the notebook — you edit values there rather than passing CLI flags. Here's what's actually worth touching:

@@ -5,7 +5,7 @@ Submitted by: Yanil Kumawat
 
 Hi, I'm Yanil. This folder is my writeup for the take-home assignment — I picked **Option 1: fine-tune an LLM for Sanskrit-English instruction following**. I've split it into one file per topic so it's easy to jump to whatever part you care about, rather than one giant wall of text.
 
-**One thing worth knowing before you dig in:** the code itself now lives in a single consolidated notebook (`notebooks/sanskrit_llm_pipeline.ipynb`) rather than the five separate scripts I started with — see [03_Architecture.md](./03_Architecture.md) §3.4 for why I made that call. Also, my final model ended up being **Llama-3.2-1B-Instruct**, not Qwen — that's a bit of a story in its own right, told in [09_Decisions_Comparisons.md](./09_Decisions_Comparisons.md) §9.1.
+**One thing worth knowing before you dig in:** the code itself lives in a single consolidated notebook (`sanskrit_llm_pipeline.ipynb`, at the repo root) rather than the five separate scripts I started with — I removed the old scripts entirely once the notebook was confirmed to reproduce the same pipeline, so this is the only entry point now. See [03_Architecture.md](./03_Architecture.md) §3.4 for why I made that call. Also, my final model ended up being **Llama-3.2-1B-Instruct**, not Qwen — that's a bit of a story in its own right, told in [09_Decisions_Comparisons.md](./09_Decisions_Comparisons.md) §9.1.
 
 | File | What's in it |
 |---|---|

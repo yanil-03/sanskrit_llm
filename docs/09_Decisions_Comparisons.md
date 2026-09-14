@@ -4,13 +4,13 @@
 
 | Model | Params | Gated? | Sanskrit token ratio (SA/EN) | Training speed I saw (T4, 500 samples) | Verdict |
 |---|---|---|---|---|---|
-| Llama-3.2-1B-Instruct | 1B | Yes (HF license) | 2.45x | **~6 min** — fastest once the earlier slowdown was resolved | **My final pick** — fastest, better (lower) Sanskrit tokenizer fragmentation ratio than Qwen |
-| Qwen2.5-1.5B-Instruct | 1.5B | No | 4.02x | ~22 min | Kept as a documented alternative — ungated and well-supported, but slower and worse tokenizer fragmentation on this task |
+| Llama-3.2-1B-Instruct | 1B | Yes (HF license) | 2.45x | **~17 min** (verified by an actual run) — fastest once the earlier slowdown was resolved | **My final pick** — fastest, better (lower) Sanskrit tokenizer fragmentation ratio than Qwen |
+| Qwen2.5-1.5B-Instruct | 1.5B | No | 4.02x | Not independently re-verified after the Llama fix | Kept as a documented alternative — ungated and well-supported, but worse tokenizer fragmentation on this task |
 | Gemma-2-2B-it | 2B | Yes | Didn't benchmark it in this run | Expected to be slower (it's bigger) | Considered, didn't pick it — bigger and gated adds friction I didn't need for a fast turnaround |
 | IndicTrans2 / Sarvam | Varies | Varies | Purpose-built for Indic scripts | N/A — it's translation-only | Didn't pick it — too narrow for the multi-task format (explain/QA/summary) the brief actually asks for |
 | mT5 variants | Varies | No | Reasonable | N/A — seq2seq, needs a different training script | Didn't pick it — loses the head start of already being an instruction-tuned decoder |
 
-**Note on the reversal:** Earlier I saw Llama train ~18x *slower* than Qwen (~6 hrs vs ~20 min) on what I believed was an identical config, and never fully isolated whether that was CPU offload under memory pressure or gated-repo/auth friction. Once that bottleneck was resolved, Llama-3.2-1B-Instruct actually trains faster than Qwen (~6 min vs ~22 min for 500 samples) — and it also has a better (lower) Sanskrit-to-English tokenizer fragmentation ratio (2.45x vs 4.02x), which I'd overlooked as a factor while focused on the speed anomaly. Both facts now favor Llama, which is why it's the current default.
+**Note on the reversal:** Earlier I saw Llama train ~18x *slower* than Qwen (~6 hrs vs ~20 min) on what I believed was an identical config, and never fully isolated whether that was CPU offload under memory pressure or gated-repo/auth friction. Once that bottleneck was resolved, a verified re-run showed Llama-3.2-1B-Instruct training in about 17 minutes for 500 samples — and it also has a better (lower) Sanskrit-to-English tokenizer fragmentation ratio (2.45x vs 4.02x), which I'd overlooked as a factor while focused on the speed anomaly. Both facts now favor Llama, which is why it's the current default. (I haven't re-run the identical config on Qwen to get an equally verified comparison time, so I'm not citing a specific number for it here.)
 
 ## 9.2 Picking a Fine-Tuning Method
 
